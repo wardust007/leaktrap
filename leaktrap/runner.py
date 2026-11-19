@@ -75,9 +75,29 @@ def _one_trial(case: AttackCase, target: Target, defenses: list[str], t: int) ->
                        final[:600].replace(sc.canary, "<SECRET>"), prompt=prompt)
 
 
+class RateGate:
+    """Spaces out request starts so free tiers (e.g. 20 requests/minute) are never exceeded."""
+
+    def __init__(self, rpm: float | None):
+        self.interval = 60.0 / rpm if rpm else 0.0
+        self.next_at = 0.0
+        self.lock = threading.Lock()
+
+    def wait(self):
+        if not self.interval:
+            return
+        with self.lock:
+            now = time.monotonic()
+            start = max(now, self.next_at)
+            self.next_at = start + self.interval
+        if start > now:
+            time.sleep(start - now)
+
+
 def run_suite(cases: list[AttackCase], target: Target, defenses: list[str], repeats: int = 1,
-              workers: int = 1, delay: float = 0.0,
+              workers: int = 1, delay: float = 0.0, rpm: float | None = None,
               progress: Optional[Callable[[str], None]] = None) -> RunResult:
+    gate = RateGate(None if getattr(target, "simulated", False) else rpm)
     result = RunResult(target=target.name, simulated=getattr(target, "simulated", False), defenses=defenses,
                        repeats=repeats, started=datetime.now(timezone.utc).isoformat(timespec="seconds"))
     summaries = {c.id: CaseSummary(case=c) for c in cases}
@@ -88,6 +108,7 @@ def run_suite(cases: list[AttackCase], target: Target, defenses: list[str], repe
 
     def work(job):
         case, t = job
+        gate.wait()
         tr = _one_trial(case, target, defenses, t)
         with lock:
             summaries[case.id].trials.append(tr)

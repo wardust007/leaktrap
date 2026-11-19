@@ -28,12 +28,28 @@ leaktrap run --target openai:gpt-5.6-sol --target anthropic:claude-sonnet-5-5 --
 
 Open `results/report.html` in your browser.
 
+## Run it for free
+
+| Option | Key | Command |
+|---|---|---|
+| **Ollama**, on your own computer (unlimited, private) | none: install [ollama.com](https://ollama.com), then `ollama pull qwen3:8b` | `leaktrap run --target ollama:qwen3:8b` |
+| **Google Gemini** free tier | free at aistudio.google.com, no card | `leaktrap run --target gemini:gemini-3.8-flash --free` |
+| **Groq** free tier (fast open models) | free at console.groq.com, no card | `leaktrap run --target groq:openai/gpt-oss-120b --free` |
+| **OpenRouter** `:free` models | free at openrouter.ai, no card | `leaktrap run --target openrouter:<model>:free --free` |
+
+`--free` keeps a run inside free-tier limits: 24 prompts, 1 trial each, at most 15 requests per
+minute (about 2 minutes per model). OpenRouter's free models allow only about 50 requests a day,
+so test one model per day there. Free tiers may use your prompts to improve their models; LeakTrap
+only sends test prompts with a fake secret, so nothing private is shared.
+
 ## Targets
 
 | Target | Example | Needs |
 |---|---|---|
 | OpenAI | `openai:gpt-5.6-sol` | `OPENAI_API_KEY` |
 | Anthropic | `anthropic:claude-sonnet-5-5` | `ANTHROPIC_API_KEY` |
+| Google Gemini | `gemini:gemini-3.8-flash` | `GEMINI_API_KEY` (free tier) |
+| Groq | `groq:openai/gpt-oss-120b` | `GROQ_API_KEY` (free tier) |
 | OpenRouter (hundreds of models, one key) | `openrouter:meta-llama/llama-4-scout` | `OPENROUTER_API_KEY` |
 | Ollama (runs on your computer, free) | `ollama:qwen3:8b` | [Ollama](https://ollama.com) running |
 | Any OpenAI-compatible API | `compatible:my-model --base-url https://...` | `LEAKTRAP_API_KEY` |
@@ -101,7 +117,7 @@ Networks Unit 42.
 pip install pytest && python -m pytest
 ```
 
-49 tests, including real HTTP calls to local fake OpenAI and Anthropic servers (parameter
+52 tests, including real HTTP calls to local fake OpenAI and Anthropic servers (parameter
 fallbacks for newer models, rate-limit retries, error handling).
 
 ## Responsible use
