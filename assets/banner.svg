@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="LeakTrap: catch AI models leaking secrets">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0420"/>
+      <stop offset="0.55" stop-color="#06060f"/>
+      <stop offset="1" stop-color="#001a24"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" x2="1">
+      <stop offset="0" stop-color="#00f0ff"/>
+      <stop offset="0.5" stop-color="#9d4dff"/>
+      <stop offset="1" stop-color="#ff2bd6"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#00f0ff" stroke-opacity="0.07"/>
+    </pattern>
+    <filter id="glow" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="360" rx="22" fill="url(#bg)"/>
+  <rect width="1200" height="360" rx="22" fill="url(#grid)"/>
+  <rect x="6" y="6" width="1188" height="348" rx="18" fill="none" stroke="#00f0ff" stroke-opacity="0.55" stroke-width="2" filter="url(#soft)"/>
+
+  <!-- trap icon: a shield with a keyhole caught in a bracket -->
+  <g transform="translate(110 92)" filter="url(#glow)">
+    <path d="M90 0 L170 30 V95 C170 145 135 178 90 196 C45 178 10 145 10 95 V30 Z" fill="none" stroke="#ff2bd6" stroke-width="6"/>
+    <circle cx="90" cy="82" r="20" fill="none" stroke="#00f0ff" stroke-width="6"/>
+    <path d="M90 102 V140" stroke="#00f0ff" stroke-width="10" stroke-linecap="round"/>
+    <path d="M-10 20 H-30 V176 H-10 M190 20 H210 V176 H190" fill="none" stroke="#39ff14" stroke-width="5"/>
+  </g>
+
+  <text x="380" y="168" font-family="'Segoe UI', Verdana, Arial, sans-serif" font-size="104" font-weight="900" letter-spacing="6" fill="url(#title)" filter="url(#glow)">LEAKTRAP</text>
+  <text x="384" y="218" font-family="'Courier New', monospace" font-size="27" fill="#e8e8ff" letter-spacing="1">&gt; catch AI models leaking secrets_</text>
+  <text x="384" y="268" font-family="'Courier New', monospace" font-size="19" fill="#39ff14" filter="url(#soft)">prompt injection · red teaming · OWASP LLM 2026 · MITRE ATLAS</text>
+
+  <g font-family="'Courier New', monospace" font-size="15" fill="#9a9ac0">
+    <text x="384" y="318">GPT · Claude · Gemini · Groq · OpenRouter · Ollama</text>
+  </g>
+  <circle cx="1130" cy="56" r="7" fill="#39ff14" filter="url(#soft)"/>
+  <text x="1112" y="61" text-anchor="end" font-family="'Courier New', monospace" font-size="15" fill="#39ff14">ARMED</text>
+</svg>
