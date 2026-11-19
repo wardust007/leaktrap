@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="How LeakTrap works: generate, plant, attack, detect, report">
+  <defs>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#00f0ff"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="300" rx="20" fill="#06060f"/>
+  <text x="600" y="44" text-anchor="middle" font-family="'Segoe UI', Verdana, sans-serif" font-size="22" font-weight="700" fill="#ffffff">The tool plants the secret, so it knows exactly what a leak looks like</text>
+
+  <g font-family="'Segoe UI', Verdana, sans-serif" text-anchor="middle">
+    <g filter="url(#glow)" fill="none" stroke-width="2.5">
+      <rect x="30"  y="90" width="196" height="140" rx="16" stroke="#00f0ff"/>
+      <rect x="262" y="90" width="196" height="140" rx="16" stroke="#9d4dff"/>
+      <rect x="494" y="90" width="196" height="140" rx="16" stroke="#ff2bd6"/>
+      <rect x="726" y="90" width="196" height="140" rx="16" stroke="#39ff14"/>
+      <rect x="958" y="90" width="212" height="140" rx="16" stroke="#ffb400"/>
+    </g>
+    <g stroke="#00f0ff" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M226 160 H258"/><path d="M458 160 H490"/><path d="M690 160 H722"/><path d="M922 160 H954"/>
+    </g>
+    <text x="128" y="138" font-size="30" font-family="'Courier New', monospace" font-weight="700" fill="#ffffff" filter="url(#glow)">&lt;/&gt;</text>
+    <text x="128" y="176" font-size="19" font-weight="700" fill="#00f0ff">1. Generate</text>
+    <text x="128" y="202" font-size="14" fill="#c8c8e8">~130 attack prompts</text>
+    <text x="128" y="220" font-size="14" fill="#c8c8e8">6 goals × 19 tricks</text>
+
+    <text x="360" y="138" font-size="30" font-family="'Courier New', monospace" font-weight="700" fill="#ffffff" filter="url(#glow)">#</text>
+    <text x="360" y="176" font-size="19" font-weight="700" fill="#b88cff">2. Plant</text>
+    <text x="360" y="202" font-size="14" fill="#c8c8e8">fresh fake secret</text>
+    <text x="360" y="220" font-size="14" fill="#c8c8e8">every single trial</text>
+
+    <text x="592" y="138" font-size="30" font-family="'Courier New', monospace" font-weight="700" fill="#ffffff" filter="url(#glow)">&gt;&gt;</text>
+    <text x="592" y="176" font-size="19" font-weight="700" fill="#ff2bd6">3. Attack</text>
+    <text x="592" y="202" font-size="14" fill="#c8c8e8">GPT, Claude, Gemini,</text>
+    <text x="592" y="220" font-size="14" fill="#c8c8e8">Groq, Ollama…</text>
+
+    <text x="824" y="138" font-size="30" font-family="'Courier New', monospace" font-weight="700" fill="#ffffff" filter="url(#glow)">?!</text>
+    <text x="824" y="176" font-size="19" font-weight="700" fill="#39ff14">4. Detect</text>
+    <text x="824" y="202" font-size="14" fill="#c8c8e8">string checks only,</text>
+    <text x="824" y="220" font-size="14" fill="#c8c8e8">no AI judge</text>
+
+    <text x="1064" y="138" font-size="30" font-family="'Courier New', monospace" font-weight="700" fill="#ffffff" filter="url(#glow)">%</text>
+    <text x="1064" y="176" font-size="19" font-weight="700" fill="#ffb400">5. Report</text>
+    <text x="1064" y="202" font-size="14" fill="#c8c8e8">neon HTML report</text>
+    <text x="1064" y="220" font-size="14" fill="#c8c8e8">+ fixes for each hole</text>
+  </g>
+  <text x="600" y="276" text-anchor="middle" font-family="'Courier New', monospace" font-size="14" fill="#9a9ac0">Each prompt runs several times per model · results come with 95% confidence intervals</text>
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 440" width="900" height="440" role="img" aria-label="Output filters block four of eight attack categories">
+  <defs>
+    <linearGradient id="bar" x1="0" x2="1"><stop offset="0" stop-color="#00f0ff"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient>
+    <filter id="glow" x="-10%" y="-80%" width="120%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="900" height="440" rx="18" fill="#06060f"/>
+  <g font-family="'Segoe UI', Verdana, sans-serif">
+    <text x="30" y="42" font-size="21" font-weight="700" fill="#ffffff">Output filters block 4 of 8 attack categories</text>
+    <text x="30" y="68" font-size="14" fill="#9a9ac0">Attack success with redact + link-strip + tool-guard on a fully compromised model · 21/48 trials</text>
+    <g stroke="#00f0ff" stroke-opacity="0.15">
+      <path d="M290 92V380M480 92V380M670 92V380"/>
+    </g>
+    <g font-size="12" fill="#9a9ac0" text-anchor="middle" font-family="'Courier New', monospace">
+      <text x="290" y="88">0%</text><text x="480" y="88">50%</text><text x="670" y="88">100%</text>
+    </g>
+    <g font-size="15" text-anchor="end">
+      <text x="276" y="119" fill="#ffffff" font-weight="700">Obfuscated leakage</text>
+      <text x="276" y="153" fill="#ffffff" font-weight="700">Goal hijacking</text>
+      <text x="276" y="187" fill="#ffffff" font-weight="700">Indirect injection</text>
+      <text x="276" y="221" fill="#9a9ac0">System-prompt extraction</text>
+      <text x="276" y="255" fill="#9a9ac0">Jailbreak</text>
+      <text x="276" y="289" fill="#9a9ac0">Data exfiltration</text>
+      <text x="276" y="323" fill="#9a9ac0">Improper output handling</text>
+      <text x="276" y="357" fill="#9a9ac0">Excessive agency</text>
+    </g>
+    <g filter="url(#glow)">
+      <rect x="290" y="105" width="380" height="20" rx="10" fill="url(#bar)"/>
+      <rect x="290" y="139" width="380" height="20" rx="10" fill="url(#bar)"/>
+      <rect x="290" y="173" width="253" height="20" rx="10" fill="url(#bar)"/>
+    </g>
+    <g font-size="13" font-family="'Courier New', monospace">
+      <text x="682" y="120" fill="#ffffff">100% (9/9)</text>
+      <text x="682" y="154" fill="#ffffff">100% (6/6)</text>
+      <text x="555" y="188" fill="#ffffff">67% (6/9)</text>
+      <text x="300" y="222" fill="#00f0ff">✓ blocked (0/9)</text>
+      <text x="300" y="256" fill="#00f0ff">✓ blocked (0/3)</text>
+      <text x="300" y="290" fill="#00f0ff">✓ blocked (0/3)</text>
+      <text x="300" y="324" fill="#00f0ff">✓ blocked (0/3)</text>
+      <text x="300" y="358" fill="#00f0ff">✓ blocked (0/6)</text>
+    </g>
+    <text x="30" y="404" font-size="13" fill="#9a9ac0">Without defenses every category succeeded 100% of the time (positive control).</text><text x="30" y="424" font-size="13" fill="#9a9ac0">Encoded leaks and obeyed instructions get past every output filter.</text>
+  </g>
+</svg>
