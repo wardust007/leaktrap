@@ -128,11 +128,15 @@ def _summary_lines(results: list[RunResult]) -> list[str]:
 # ----------------------------------------------------------------------------- HTML
 
 def _heat(s: int, n: int) -> str:
+    """Neon heat cell: cool cyan when attacks fail, hot magenta glow when they succeed."""
     if not n:
         return "<td class=c>–</td>"
     p = s / n
-    return (f"<td class=c style='background:rgba(214,48,49,{0.08 + 0.72 * p:.2f});"
-            f"color:{'#fff' if p > 0.55 else 'inherit'}' title='{s}/{n}'>{p * 100:.0f}%</td>")
+    if p == 0:
+        return f"<td class='c cool' title='{s}/{n}'>0%</td>"
+    glow = f"0 0 {6 + 18 * p:.0f}px rgba(255,43,214,{0.25 + 0.6 * p:.2f})"
+    return (f"<td class=c style='background:rgba(255,43,214,{0.08 + 0.5 * p:.2f});box-shadow:inset {glow};"
+            f"color:#fff;text-shadow:0 0 8px rgba(255,43,214,.9)' title='{s}/{n}'>{p * 100:.0f}%</td>")
 
 
 def _table(title: str, results: list[RunResult], key, label=lambda k: k, note: str = "") -> str:
@@ -148,39 +152,81 @@ def _table(title: str, results: list[RunResult], key, label=lambda k: k, note: s
 def _bar_chart(results: list[RunResult]) -> str:
     left, w, step = 250, 420, 40
     h = 70 + step * len(results)
-    parts = [f"<svg viewBox='0 0 760 {h}' role='img' aria-label='Attack success rate by model' class=chart>"]
+    parts = [f"<svg viewBox='0 0 760 {h}' role='img' aria-label='Attack success rate by model' class=chart>"
+             "<defs><linearGradient id=neonbar x1=0 x2=1><stop offset=0 stop-color='#00f0ff'/>"
+             "<stop offset=1 stop-color='#ff2bd6'/></linearGradient>"
+             "<filter id=glow x='-20%' y='-60%' width='140%' height='220%'><feGaussianBlur stdDeviation='4' "
+             "result=b/><feMerge><feMergeNode in=b/><feMergeNode in=SourceGraphic/></feMerge></filter></defs>"]
     for t in (0, 0.25, 0.5, 0.75, 1):
         x = left + t * w
-        parts.append(f"<line x1={x} x2={x} y1=30 y2={h - 20} stroke='#e3e6ec'/>"
+        parts.append(f"<line x1={x} x2={x} y1=30 y2={h - 20} stroke='rgba(0,240,255,.15)'/>"
                      f"<text x={x} y=22 text-anchor=middle class=tick>{int(t * 100)}%</text>")
     for i, r in enumerate(results):
         y = 50 + i * step
         lo, hi = r.ci
         parts.append(f"<text x={left - 12} y={y + 5} text-anchor=end class=lab>{html.escape(r.target)}</text>"
-                     f"<rect x={left} y={y - 10} width={max(1, r.asr * w):.1f} height=20 rx=3 fill='#d63031' "
-                     f"fill-opacity=.85><title>{r.target}: {r.total_successes}/{r.total_trials}</title></rect>"
-                     f"<line x1={left + lo * w:.1f} x2={left + hi * w:.1f} y1={y} y2={y} stroke='#1d2433' "
+                     f"<rect x={left} y={y - 9} width={max(2, r.asr * w):.1f} height=18 rx=9 fill='url(#neonbar)' "
+                     f"filter='url(#glow)'><title>{r.target}: {r.total_successes}/{r.total_trials}</title></rect>"
+                     f"<line x1={left + lo * w:.1f} x2={left + hi * w:.1f} y1={y} y2={y} stroke='#f5f5ff' "
                      f"stroke-width=1.5/><line x1={left + lo * w:.1f} x2={left + lo * w:.1f} y1={y - 5} y2={y + 5} "
-                     f"stroke='#1d2433'/><line x1={left + hi * w:.1f} x2={left + hi * w:.1f} y1={y - 5} y2={y + 5} "
-                     f"stroke='#1d2433'/><text x={left + max(hi, r.asr) * w + 10:.1f} y={y + 5} class=val>"
+                     f"stroke='#f5f5ff'/><line x1={left + hi * w:.1f} x2={left + hi * w:.1f} y1={y - 5} y2={y + 5} "
+                     f"stroke='#f5f5ff'/><text x={left + max(hi, r.asr) * w + 10:.1f} y={y + 5} class=val>"
                      f"{r.asr * 100:.0f}%</text>")
     parts.append("</svg>")
     return "".join(parts)
 
 
+FONTS = ("<link rel=preconnect href=https://fonts.googleapis.com>"
+         "<link href='https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=JetBrains+Mono:wght@400;600"
+         "&family=Inter:wght@400;600&display=swap' rel=stylesheet>")
+
 CSS = """
-body{font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;max-width:1080px;margin:0 auto;padding:32px 20px 80px;color:#1d2433;background:#fff}
-h1{font-size:30px;margin:0 0 4px}h2{margin-top:44px;padding-top:12px;border-top:1px solid #e3e6ec}h3{margin-top:28px}
-.meta,.note{color:#5b6475}.banner{background:#fff4e5;border:2px solid #e17000;border-radius:8px;padding:12px 16px;margin:18px 0;font-weight:600}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:18px 0}
-.card{border:1px solid #e3e6ec;border-radius:10px;padding:14px 16px}.card .big{font-size:30px;font-weight:700}.card .sub{color:#5b6475;font-size:13px}
-table{border-collapse:collapse;width:100%;margin:10px 0 18px;font-size:14px}td,th{border-bottom:1px solid #e3e6ec;padding:7px 9px;text-align:left;vertical-align:top}
-th{background:#f5f6f9;font-weight:600}.c{text-align:center;white-space:nowrap}
-.chart{width:100%;max-width:760px}.tick{font-size:11px;fill:#5b6475}.lab{font-size:13px;fill:#1d2433}.val{font-size:12px;fill:#1d2433;font-weight:600}
-.finding{border:1px solid #e3e6ec;border-left:5px solid #d63031;border-radius:8px;padding:14px 16px;margin:14px 0}
-.finding.critical{border-left-color:#8e0000}.tag{display:inline-block;font-size:12px;background:#f0f2f6;border-radius:4px;padding:1px 7px;margin:0 4px 4px 0}
-pre{background:#0f1420;color:#d6e2ff;padding:12px 14px;border-radius:8px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:13px}
-details{margin:8px 0}summary{cursor:pointer;font-weight:600}ul.summary li{margin:6px 0}
+:root{--bg:#06060f;--panel:#0d0d1f;--line:rgba(0,240,255,.18);--text:#e8e8ff;--dim:#9a9ac0;
+--cyan:#00f0ff;--pink:#ff2bd6;--lime:#39ff14;--violet:#9d4dff;--amber:#ffb400}
+*{box-sizing:border-box}
+body{font:15px/1.6 Inter,system-ui,-apple-system,Segoe UI,sans-serif;max-width:1100px;margin:0 auto;padding:36px 22px 90px;
+color:var(--text);background:var(--bg);
+background-image:radial-gradient(circle at 15% 0%,rgba(157,77,255,.22),transparent 40%),
+radial-gradient(circle at 90% 10%,rgba(0,240,255,.14),transparent 35%),
+linear-gradient(rgba(0,240,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.04) 1px,transparent 1px);
+background-size:auto,auto,32px 32px,32px 32px;background-attachment:fixed}
+h1,h2,h3{font-family:Orbitron,Inter,sans-serif;letter-spacing:.04em}
+h1{font-size:34px;margin:0 0 6px;color:#fff;text-shadow:0 0 6px var(--cyan),0 0 22px var(--cyan),0 0 44px rgba(0,240,255,.5)}
+h2{margin-top:52px;padding-top:16px;border-top:1px solid var(--line);color:var(--pink);font-size:20px;
+text-shadow:0 0 10px rgba(255,43,214,.8)}
+h3{margin-top:30px;color:var(--cyan);font-size:14px;text-transform:uppercase;text-shadow:0 0 8px rgba(0,240,255,.7)}
+b,strong{color:#fff}a{color:var(--cyan)}code{font-family:'JetBrains Mono',monospace;color:var(--lime)}
+.meta,.note{color:var(--dim)}
+.banner{background:rgba(255,180,0,.08);border:1px solid var(--amber);border-radius:10px;padding:13px 16px;margin:20px 0;
+font-weight:600;color:#ffe2a3;box-shadow:0 0 18px rgba(255,180,0,.35),inset 0 0 14px rgba(255,180,0,.12)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:20px 0}
+.card{background:var(--panel);border:1px solid var(--cyan);border-radius:14px;padding:16px 18px;
+box-shadow:0 0 14px rgba(0,240,255,.35),inset 0 0 18px rgba(0,240,255,.08)}
+.card:nth-child(3n+2){border-color:var(--pink);box-shadow:0 0 14px rgba(255,43,214,.4),inset 0 0 18px rgba(255,43,214,.08)}
+.card:nth-child(3n+3){border-color:var(--lime);box-shadow:0 0 14px rgba(57,255,20,.35),inset 0 0 18px rgba(57,255,20,.07)}
+.card .big{font-family:Orbitron,sans-serif;font-size:36px;font-weight:800;color:#fff;text-shadow:0 0 12px currentColor}
+.card .sub{color:var(--dim);font-size:13px;font-family:'JetBrains Mono',monospace}
+table{border-collapse:separate;border-spacing:0;width:100%;margin:12px 0 20px;font-size:14px;background:var(--panel);
+border:1px solid var(--line);border-radius:12px;overflow:hidden}
+td,th{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:rgba(0,240,255,.07);color:var(--cyan);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:12.5px}
+tr:last-child td{border-bottom:0}.c{text-align:center;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+td.cool{color:var(--cyan);text-shadow:0 0 6px rgba(0,240,255,.6)}
+.chart{width:100%;max-width:780px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px}
+.tick{font-size:11px;fill:var(--dim);font-family:'JetBrains Mono',monospace}.lab{font-size:13px;fill:var(--text)}
+.val{font-size:12.5px;fill:#fff;font-weight:600;font-family:'JetBrains Mono',monospace}
+.finding{background:var(--panel);border:1px solid var(--pink);border-radius:12px;padding:16px 18px;margin:16px 0;
+box-shadow:0 0 12px rgba(255,43,214,.3)}
+.finding.critical{border-color:#ff3860;box-shadow:0 0 16px rgba(255,56,96,.5)}
+.finding.medium{border-color:var(--violet);box-shadow:0 0 12px rgba(157,77,255,.35)}
+.tag{display:inline-block;font:12px 'JetBrains Mono',monospace;color:var(--cyan);border:1px solid var(--line);
+border-radius:999px;padding:1px 9px;margin:0 5px 5px 0;background:rgba(0,240,255,.06)}
+pre{background:#03030a;color:var(--lime);border:1px solid rgba(57,255,20,.3);padding:12px 14px;border-radius:10px;
+overflow:auto;white-space:pre-wrap;word-break:break-word;font:13px/1.5 'JetBrains Mono',monospace;
+box-shadow:inset 0 0 16px rgba(57,255,20,.08);text-shadow:0 0 4px rgba(57,255,20,.4)}
+details{margin:10px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+summary{cursor:pointer;font-weight:600;color:var(--cyan)}ul.summary li{margin:8px 0}ol li{margin:8px 0}
+ol li::marker{color:var(--pink);font-weight:700}
 """
 
 
@@ -228,7 +274,7 @@ def to_html(results: list[RunResult], meta: dict) -> str:
     gen = meta.get("generator", {})
     return f"""<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1"><title>LeakTrap assessment report</title>
-<style>{CSS}</style></head><body>
+{FONTS}<style>{CSS}</style></head><body>
 <h1>LeakTrap assessment report</h1>
 <p class=meta>Prompt-injection resistance test · {html.escape(meta.get('generated', ''))} UTC ·
 {len(results)} target(s) · {total_prompts} attack prompts × {results[0].repeats if results else 0} trial(s) · defenses: {html.escape(defenses)}</p>

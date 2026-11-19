@@ -65,6 +65,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--max-tokens", type=int, default=500)
     r.add_argument("--base-url", help="override the API address (needed for compatible:)")
     r.add_argument("--out", default="results", help="folder for the report (default: results)")
+    r.add_argument("--rpm", type=float, help="max requests per minute per model (for rate-limited free tiers)")
+    r.add_argument("--free", action="store_true",
+                   help="fit free-tier limits: 24 prompts, 1 trial each, max 15 requests/minute")
     r.add_argument("--yes", action="store_true", help="don't ask before sending paid API requests")
     r.add_argument("--dry-run", action="store_true", help="show the plan and stop")
     r.add_argument("--quiet", action="store_true")
@@ -92,6 +95,15 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     # ---------------------------------------------------------------- run
+    if a.free:
+        # OpenRouter's free models allow about 50 requests a day and 20 a minute; Groq and Gemini allow more.
+        if "--count" not in (argv or sys.argv):
+            a.count = 24
+        if "--repeats" not in (argv or sys.argv):
+            a.repeats = 1
+        a.rpm = a.rpm or 15
+        a.workers = 1
+        a.yes = True
     try:
         targets = [make_target(t, a.base_url, a.temperature, a.max_tokens) for t in a.target]
     except ValueError as e:
@@ -123,7 +135,9 @@ def main(argv: list[str] | None = None) -> int:
     real = [t for t in targets if not getattr(t, "simulated", False)]
     per_model = len(cases) * a.repeats
     print(f"Plan: {len(cases)} prompts × {a.repeats} trials × {len(targets)} target(s) = "
-          f"{per_model * len(targets)} requests ({per_model * len(real)} to real APIs).", file=sys.stderr)
+          f"{per_model * len(targets)} requests ({per_model * len(real)} to real APIs)."
+          + (f" Rate limit {a.rpm:g}/min: about {per_model / a.rpm:.0f} min per model." if a.rpm and real else ""),
+          file=sys.stderr)
     if a.dry_run:
         for c in cases[:10]:
             print(f"  {c.id}", file=sys.stderr)
@@ -135,7 +149,8 @@ def main(argv: list[str] | None = None) -> int:
     results = []
     for t in targets:
         log(f"\n=== {t.name} ===")
-        results.append(run_suite(cases, t, defenses, repeats=a.repeats, workers=a.workers, progress=log))
+        results.append(run_suite(cases, t, defenses, repeats=a.repeats, workers=a.workers, rpm=a.rpm,
+                                 progress=log))
 
     meta = {"source": source, "generator": gen_meta, "rewrite": rewrite_note}
     paths = write_reports(results, a.out, meta)

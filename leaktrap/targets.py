@@ -3,8 +3,10 @@
 Real models
   openai:<model>      OpenAI API (GPT models). Key: OPENAI_API_KEY
   anthropic:<model>   Anthropic API (Claude models). Key: ANTHROPIC_API_KEY
-  openrouter:<model>  OpenRouter, one key for hundreds of models. Key: OPENROUTER_API_KEY
-  ollama:<model>      A model running locally in Ollama. No key, nothing leaves your computer.
+  gemini:<model>      Google Gemini (free tier, no card). Key: GEMINI_API_KEY
+  groq:<model>        Groq (free tier, no card). Key: GROQ_API_KEY
+  openrouter:<model>  OpenRouter, one key for hundreds of models; ':free' models cost nothing. Key: OPENROUTER_API_KEY
+  ollama:<model>      A model running locally in Ollama. Free, no key, nothing leaves your computer.
   compatible:<model>  Any other OpenAI-compatible API (set --base-url). Key: LEAKTRAP_API_KEY
 
 Built-in stand-ins (not models; for checking the tool and previewing a report)
@@ -232,7 +234,7 @@ class SimulatedDemoTarget(Target):
 
 # ----------------------------------------------------------------------------- factory
 
-PROVIDERS = ("openai", "anthropic", "openrouter", "ollama", "compatible", "demo")
+PROVIDERS = ("openai", "anthropic", "gemini", "groq", "openrouter", "ollama", "compatible", "demo")
 
 
 def make_target(spec: str, base_url: str | None = None, temperature: float | None = 0.7,
@@ -268,6 +270,18 @@ def make_target(spec: str, base_url: str | None = None, temperature: float | Non
             raise ValueError("set OPENROUTER_API_KEY to test models through OpenRouter")
         return OpenAICompatTarget(base_url or "https://openrouter.ai/api/v1", model, key, spec, temperature,
                                   max_tokens, extra_headers={"X-Title": "LeakTrap"})
+    if provider == "gemini":
+        key = os.environ.get("GEMINI_API_KEY")
+        if not key:
+            raise ValueError("set GEMINI_API_KEY (free key from aistudio.google.com) to test Gemini models")
+        return OpenAICompatTarget(base_url or "https://generativelanguage.googleapis.com/v1beta/openai", model,
+                                  key, spec, temperature, max_tokens)
+    if provider == "groq":
+        key = os.environ.get("GROQ_API_KEY")
+        if not key:
+            raise ValueError("set GROQ_API_KEY (free key from console.groq.com) to test models on Groq")
+        return OpenAICompatTarget(base_url or "https://api.groq.com/openai/v1", model, key, spec, temperature,
+                                  max_tokens)
     if provider == "ollama":
         return OpenAICompatTarget(base_url or "http://localhost:11434/v1", model, None, spec, temperature,
                                   max_tokens)

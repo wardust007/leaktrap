@@ -267,3 +267,33 @@ def test_ai_rewriter(server, monkeypatch):
     new, dropped = rewrite_cases(cases, Attacker())
     assert new and all("{MARKER}" in (c.document or c.user_message) for c in new)
     assert all(c.technique == "ai-rewrite" for c in new)
+
+
+def test_free_providers(monkeypatch):
+    for var in ("GEMINI_API_KEY", "GROQ_API_KEY"):
+        monkeypatch.delenv(var, raising=False)
+    with pytest.raises(ValueError, match="aistudio"):
+        make_target("gemini:gemini-3.8-flash")
+    monkeypatch.setenv("GEMINI_API_KEY", "g")
+    monkeypatch.setenv("GROQ_API_KEY", "q")
+    assert "generativelanguage" in make_target("gemini:gemini-3.8-flash").base_url
+    assert "groq.com" in make_target("groq:openai/gpt-oss-120b").base_url
+
+
+def test_rate_gate_spaces_requests():
+    import time as _t
+    from leaktrap.runner import RateGate
+    gate = RateGate(rpm=600)          # one request every 0.1 s
+    start = _t.monotonic()
+    for _ in range(4):
+        gate.wait()
+    assert _t.monotonic() - start >= 0.29
+
+
+def test_free_mode_defaults(server, tmp_path, monkeypatch):
+    monkeypatch.setenv("LEAKTRAP_API_KEY", "k")
+    out = tmp_path / "f"
+    assert main(["run", "--target", "compatible:naive", "--base-url", server, "--free", "--rpm", "6000",
+                 "--out", str(out), "--quiet"]) == 0
+    data = json.loads((out / "results.json").read_text())
+    assert data["targets"][0]["overall"]["trials"] == 24
