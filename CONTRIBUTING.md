@@ -3,7 +3,7 @@
 Ideas, attacks and fixes are welcome!
 
 1. 🍴 Fork the repo and create a branch.
-2. ⚙️ `pip install -e . pytest`
+2. ⚙️ Set up the virtual environment from the README (Step 4), then `python -m pip install pytest`
 3. ✍️ Make your change. New attack techniques go in `leaktrap/generator.py` (`DIRECT` or `INDIRECT`).
 4. ✅ Run `python -m pytest`. Every generated prompt is checked automatically to make sure it can be detected.
 5. 📬 Open a pull request describing what you added and why.

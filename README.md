@@ -46,61 +46,96 @@ AI chatbots are given **hidden instructions** and often **secrets**: API keys, i
 
 ### Step 1 · Install Python 🐍
 
-Download **Python 3.10 or newer** from [python.org/downloads](https://www.python.org/downloads/).
+Download **Python 3.10 or newer** from [python.org/downloads](https://www.python.org/downloads/) and install it.
 
-> ⚠️ **Windows:** on the first install screen, tick **"Add Python to PATH"**.
+> ⚠️ **Windows:** on the first install screen, tick **"Add python.exe to PATH"** before clicking *Install Now*.
 
-### Step 2 · Get LeakTrap 📦
+### Step 2 · Download LeakTrap 📦
 
-**Option A, no Git needed:** click the green **`<> Code`** button on this page → **Download ZIP** → unzip it.
+**Option A, no Git needed:** click the green **`<> Code`** button at the top of this page → **Download ZIP** → right-click the file → **Extract All**. You get a folder called **`leaktrap-main`**.
 
 **Option B, with Git:**
 ```bash
 git clone https://github.com/wardust007/leaktrap.git
+cd leaktrap
 ```
 
-### Step 3 · Open a terminal in the folder 💻
+### Step 3 · Open a terminal in that folder 💻
+
+Open the folder that contains **`README.md`** and **`pyproject.toml`**: `leaktrap-main` if you downloaded the ZIP. Not the `leaktrap` folder *inside* it.
 
 | 🪟 Windows | 🍎 Mac | 🐧 Linux |
 |---|---|---|
-| Open the `leaktrap` folder, click the address bar, type `cmd`, press **Enter** | Right-click the `leaktrap` folder → **New Terminal at Folder** | `cd leaktrap` |
+| Open the folder in File Explorer, click the **address bar**, type `cmd`, press **Enter** | Right-click the folder → **Services → New Terminal at Folder** | Right-click inside the folder → **Open in Terminal** |
 
-### Step 4 · Install it ⚙️
+### Step 4 · Install it (one time) ⚙️
+
+This creates a private Python space just for LeakTrap (a *virtual environment*), so it works on every computer without permission errors.
+
+<table>
+<tr><th>🪟 Windows (Command Prompt)</th><th>🍎 Mac / 🐧 Linux</th></tr>
+<tr><td>
+
+```bat
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -e .
+```
+
+</td><td>
 
 ```bash
-pip install -e .
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
 ```
-<sub>Mac/Linux: if `pip` isn't found, use `pip3`.</sub>
+
+</td></tr>
+</table>
+
+✅ You'll now see **`(.venv)`** at the start of the line. That means it's ready.
+
+> 🔁 **Every time you open a new terminal later**, go to the same folder and run just the middle line again (`.venv\Scripts\activate` on Windows, `source .venv/bin/activate` on Mac/Linux) before using LeakTrap.
 
 ### Step 5 · Try it with no key at all 🎮
 
 ```bash
 leaktrap run --target demo:simulated
 ```
-This uses a built-in **fake** model so you can see the report right away. Open **`results/report.html`** in your browser. 🎉
+This uses a built-in **fake** model so you can see the report right away. Open the new **`results`** folder and double-click **`report.html`**. 🎉
 
 ### Step 6 · Attack a real AI model 🎯
 
-Grab a **free** Gemini key at [aistudio.google.com](https://aistudio.google.com) → **Get API key** (no card needed), then:
+Grab a **free** Gemini key at [aistudio.google.com](https://aistudio.google.com) → **Get API key** (no card needed). Then, in the same terminal:
 
 <table>
-<tr><th>🪟 Windows</th><th>🍎 Mac / 🐧 Linux</th></tr>
+<tr><th>🪟 Command Prompt</th><th>🪟 PowerShell</th><th>🍎 Mac / 🐧 Linux</th></tr>
 <tr><td>
 
 ```bat
 set GEMINI_API_KEY=paste-your-key
-leaktrap run --target gemini:gemini-3.8-flash --free
+```
+
+</td><td>
+
+```powershell
+$env:GEMINI_API_KEY="paste-your-key"
 ```
 
 </td><td>
 
 ```bash
 export GEMINI_API_KEY=paste-your-key
-leaktrap run --target gemini:gemini-3.8-flash --free
 ```
 
 </td></tr>
 </table>
+
+```bash
+leaktrap run --target gemini:gemini-3.8-flash --free
+```
+
+<sub>Command Prompt: no quotes and no spaces around `=`. The key only lasts while that terminal window is open.</sub>
 
 ⏱️ About 2 minutes later, open **`results/report.html`**. That's a real security assessment of a real AI model.
 
@@ -281,18 +316,39 @@ leaktrap run --target demo:compromised --prompts builtin --defenses redact,link-
 
 ## 🛠️ Troubleshooting
 
-<details><summary>❌ <code>'leaktrap' is not recognized</code> / <code>command not found</code></summary>
+<details><summary>❌ <code>'python' is not recognized</code>, or it opens the Microsoft Store (Windows)</summary>
 
-Python's scripts folder isn't on your PATH. Use this instead, which works everywhere:
-```bash
-python -m leaktrap run --target demo:simulated
-```
-On Windows you can also reinstall Python with **"Add Python to PATH"** ticked.
+Python isn't on your PATH. Either reinstall Python with **"Add python.exe to PATH"** ticked, or use the Python launcher instead: replace `python` with `py` in Step 4 (`py -m venv .venv`).
 </details>
 
-<details><summary>🔑 <code>set GEMINI_API_KEY ...</code> error, or the key "isn't set"</summary>
+<details><summary>❌ <code>'leaktrap' is not recognized</code> / <code>command not found</code></summary>
 
-The key only lasts for that terminal window. Set it again in every new window, in the **same** window you run LeakTrap from. Windows uses `set`, Mac/Linux use `export`. No spaces around `=`, no quotes needed.
+Your virtual environment isn't active: you won't see `(.venv)` at the start of the line. Go to the LeakTrap folder and run the activate line from Step 4 again. As a fallback, this always works: `python -m leaktrap run --target demo:simulated`
+</details>
+
+<details><summary>❌ <code>does not appear to be a Python project</code> / <code>neither setup.py nor pyproject.toml found</code></summary>
+
+You're in the wrong folder, usually the inner `leaktrap` folder. Go up one level to the folder that contains `README.md` and `pyproject.toml` (`leaktrap-main` from the ZIP).
+</details>
+
+<details><summary>❌ <code>externally-managed-environment</code> (Mac / Linux)</summary>
+
+You ran `pip install` without the virtual environment. Run the three lines in Step 4 in order. The `source .venv/bin/activate` line is what fixes this.
+</details>
+
+<details><summary>❌ <code>No module named venv</code> / <code>ensurepip is not available</code> (Ubuntu / Debian)</summary>
+
+Install the venv package first: `sudo apt install python3-venv`, then repeat Step 4.
+</details>
+
+<details><summary>❌ PowerShell: <code>running scripts is disabled on this system</code></summary>
+
+Use **Command Prompt** instead (type `cmd` in the folder's address bar), or run this once in PowerShell: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+</details>
+
+<details><summary>🔑 "set GEMINI_API_KEY" error, or the key "isn't set"</summary>
+
+The key only lasts for that terminal window. Set it again in every new window, in the **same** window you run LeakTrap from. Command Prompt uses `set NAME=value`, PowerShell uses `$env:NAME="value"`, Mac/Linux use `export NAME=value`.
 </details>
 
 <details><summary>⛔ <code>HTTP 404 ... model does not exist</code></summary>
@@ -302,7 +358,7 @@ The model name is wrong or retired. Copy the exact ID from your provider's model
 
 <details><summary>🐢 <code>HTTP 429</code> / rate limited</summary>
 
-You hit the free tier's limit. LeakTrap already retries automatically; add `--free` or lower the speed with `--rpm 10`. OpenRouter free models: wait until tomorrow (about 50 requests/day).
+You hit the free tier's limit. LeakTrap already retries automatically; add `--free` or lower the speed with `--rpm 10`. OpenRouter free models allow about 50 requests a day, so wait until tomorrow.
 </details>
 
 <details><summary>🏠 Ollama: connection refused</summary>
@@ -329,7 +385,7 @@ tests/                53 tests, including real HTTP calls to fake GPT & Claude s
 docs/                 research paper + live sample report
 ```
 
-Run the tests: `pip install pytest && python -m pytest` ✅
+Run the tests (with the virtual environment active): `python -m pip install pytest` then `python -m pytest` ✅
 
 ---
 
