@@ -1,0 +1,62 @@
+name: 📦 install guide
+
+# Follows the README's Quick start word for word on Windows, Mac and Linux,
+# so the install instructions can never silently go out of date.
+on:
+  push:
+  pull_request:
+
+jobs:
+  windows-cmd:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Step 4 + 5 in Command Prompt
+        shell: cmd
+        run: |
+          python -m venv .venv
+          call .venv\Scripts\activate
+          python -m pip install -e .
+          leaktrap run --target demo:simulated --count 12 --repeats 1 --yes --quiet
+          if not exist results\report.html exit /b 1
+          python -m leaktrap techniques
+
+  windows-powershell:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Step 4 + 5 in PowerShell
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install -e .
+          $env:GEMINI_API_KEY="placeholder"
+          leaktrap run --target demo:simulated --count 12 --repeats 1 --yes --quiet
+          if (-not (Test-Path results\report.html)) { exit 1 }
+
+  mac-and-linux:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Step 4 + 5 in bash
+        shell: bash
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install -e .
+          leaktrap run --target demo:simulated --count 12 --repeats 1 --yes --quiet
+          test -f results/report.html
+          leaktrap replay secret-leak.plain-override --target demo:compromised --times 2
