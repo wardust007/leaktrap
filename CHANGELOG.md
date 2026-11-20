@@ -1,5 +1,11 @@
 # 📜 Changelog
 
+## v0.4.0 · November 2026
+- 🖱️ **Double-click launchers:** `Start LeakTrap.bat` (Windows) and `Start LeakTrap.command` (Mac) open the dashboard. No typing needed
+- 🛡️ **Dashboard (`python -m leaktrap ui`):** pick a model from a menu, paste a key, press Launch, and watch a live log and a neon scoreboard
+- 📄 The full HTML report opens from the dashboard with one click
+- 🔒 The dashboard runs only on your own computer (127.0.0.1). Keys are used for the run and never saved
+
 ## v0.3.1 · November 2026
 - 🚀 **Zero install:** no dependencies at all. Clone the repo and run `python -m leaktrap`, nothing else needed
 - 📦 Built-in suite is now JSON; YAML suites still work if PyYAML is installed (`pip install leaktrap[yaml]`)
