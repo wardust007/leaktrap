@@ -5,6 +5,8 @@
   leaktrap run --target openai:gpt-5.6-sol --target anthropic:claude-sonnet-5-5 --target ollama:qwen3:8b
   leaktrap run --target demo:simulated                     preview a report with no API key
   leaktrap techniques                                      list goals and techniques
+  leaktrap list                                            list every attack prompt ID
+  leaktrap replay goal-hijack.delimiter-escape --target gemini:gemini-3.8-flash   watch one attack live
 """
 
 from __future__ import annotations
@@ -35,6 +37,13 @@ def _gen(a):
                     goals=[g.strip() for g in a.goals.split(",")] if a.goals else None,
                     techniques=[t.strip() for t in a.techniques.split(",")] if a.techniques else None,
                     languages=tuple(x.strip() for x in a.languages.split(",")))
+
+
+def _all_prompts(source: str):
+    from .generator import all_cases
+    if source == "generated":
+        return all_cases()
+    return load_suite(None if source == "builtin" else source)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -72,8 +81,44 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--dry-run", action="store_true", help="show the plan and stop")
     r.add_argument("--quiet", action="store_true")
 
+    ls = sub.add_parser("list", help="list attack prompt IDs (use them with replay)")
+    ls.add_argument("--prompts", default="generated", help="'generated' (all 126), 'builtin', or a .jsonl/.yaml file")
+    ls.add_argument("--goals", help="only these goals (comma list)")
+
+    rp = sub.add_parser("replay", help="watch one attack hit a model live, several times in a row")
+    rp.add_argument("prompt_id", help="an ID from the report or from 'leaktrap list', e.g. goal-hijack.delimiter-escape")
+    rp.add_argument("--target", required=True, help="provider:model, e.g. gemini:gemini-3.8-flash")
+    rp.add_argument("--times", type=int, default=5, help="how many attempts (default 5)")
+    rp.add_argument("--prompts", default="generated", help="'generated', 'builtin', or a .jsonl/.yaml file")
+    rp.add_argument("--defenses", default="none")
+    rp.add_argument("--show-system", action="store_true", help="also print the chatbot's hidden instructions")
+    rp.add_argument("--temperature", type=float, default=0.7)
+    rp.add_argument("--base-url")
+    rp.add_argument("--rpm", type=float, default=None, help="max attempts per minute")
+
     a = p.parse_args(argv)
     log = (lambda m: None) if getattr(a, "quiet", False) else (lambda m: print(m, file=sys.stderr))
+
+    if a.cmd == "list":
+        cases = _all_prompts(a.prompts)
+        if a.goals:
+            want = {g.strip() for g in a.goals.split(",")}
+            cases = [c for c in cases if (c.goal or c.category) in want]
+        for c in cases:
+            print(f"{c.id:40} {c.severity:9} {c.vector:9} {c.language}")
+        print(f"\n{len(cases)} prompts. Try one live: leaktrap replay <ID> --target <provider:model>")
+        return 0
+
+    if a.cmd == "replay":
+        from .replay import replay
+        try:
+            target = make_target(a.target, a.base_url, a.temperature, 500)
+        except ValueError as e:
+            p.error(str(e))
+        case = next((c for c in _all_prompts(a.prompts) if c.id == a.prompt_id), None)
+        if case is None:
+            p.error(f"no prompt with ID {a.prompt_id!r}. Run 'leaktrap list' to see IDs.")
+        return replay(case, target, max(1, a.times), parse_defenses(a.defenses), a.show_system, a.rpm)
 
     if a.cmd == "techniques":
         print("Goals:")
