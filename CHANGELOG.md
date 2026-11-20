@@ -1,5 +1,10 @@
 # 📜 Changelog
 
+## v0.3.1 · November 2026
+- 🚀 **Zero install:** no dependencies at all. Clone the repo and run `python -m leaktrap`, nothing else needed
+- 📦 Built-in suite is now JSON; YAML suites still work if PyYAML is installed (`pip install leaktrap[yaml]`)
+- ✅ GitHub now tests the README Quick start on Windows, Mac and Linux on every push
+
 ## v0.3.0 · November 2026
 - 🎬 **`leaktrap replay`:** watch one attack hit a model live, with LEAKED / BLOCKED verdicts and a success rate
 - 🆔 **`leaktrap list`:** every attack ID, filterable by goal

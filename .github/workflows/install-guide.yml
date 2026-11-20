@@ -1,57 +1,57 @@
 name: 📦 install guide
 
-# Follows the README's Quick start word for word on Windows, Mac and Linux,
-# so the install instructions can never silently go out of date.
+# Follows the README Quick start word for word on Windows, Mac and Linux:
+# clone, cd, run with plain Python. Nothing is installed with pip.
 on:
   push:
   pull_request:
 
 jobs:
-  windows-cmd:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Step 4 + 5 in Command Prompt
-        shell: cmd
-        run: |
-          python -m venv .venv
-          call .venv\Scripts\activate
-          python -m pip install -e .
-          leaktrap run --target demo:simulated --count 12 --repeats 1 --yes --quiet
-          if not exist results\report.html exit /b 1
-          python -m leaktrap techniques
-
-  windows-powershell:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Step 4 + 5 in PowerShell
-        shell: pwsh
-        run: |
-          python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -m pip install -e .
-          $env:GEMINI_API_KEY="placeholder"
-          leaktrap run --target demo:simulated --count 12 --repeats 1 --yes --quiet
-          if (-not (Test-Path results\report.html)) { exit 1 }
-
-  mac-and-linux:
+  quick-start:
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: "1️⃣ git clone + cd + run (no install)"
+        shell: bash
+        run: |
+          git clone https://github.com/${{ github.repository }}.git
+          cd leaktrap
+          git checkout ${{ github.sha }}
+          python -m leaktrap run --target demo:simulated --count 12 --repeats 1 --yes --quiet
+          test -f results/report.html
+          python -m leaktrap replay tool-abuse.delimiter-escape --target demo:compromised --times 2
+          python -m leaktrap list --goals tool-abuse
+
+  windows-command-prompt:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Same steps in Command Prompt
+        shell: cmd
+        run: |
+          git clone https://github.com/${{ github.repository }}.git
+          cd leaktrap
+          git checkout ${{ github.sha }}
+          set GEMINI_API_KEY=placeholder
+          python -m leaktrap run --target demo:simulated --count 12 --repeats 1 --yes --quiet
+          if not exist results\report.html exit /b 1
+
+  optional-short-command:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Step 4 + 5 in bash
+      - name: Optional install into a virtual environment
         shell: bash
         run: |
           python3 -m venv .venv
@@ -59,4 +59,3 @@ jobs:
           python -m pip install -e .
           leaktrap run --target demo:simulated --count 12 --repeats 1 --yes --quiet
           test -f results/report.html
-          leaktrap replay secret-leak.plain-override --target demo:compromised --times 2

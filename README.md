@@ -42,102 +42,66 @@ AI chatbots are given **hidden instructions** and often **secrets**: API keys, i
 
 ---
 
-## 🚀 Quick start (5 minutes)
+## 🚀 Quick start
 
-### Step 1 · Install Python 🐍
+**You need:** [Python 3.10+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads). Nothing else gets installed: LeakTrap runs on plain Python.
 
-Download **Python 3.10 or newer** from [python.org/downloads](https://www.python.org/downloads/) and install it.
+> 🪟 On Windows, tick **"Add python.exe to PATH"** when installing Python.
 
-> ⚠️ **Windows:** on the first install screen, tick **"Add python.exe to PATH"** before clicking *Install Now*.
+**1️⃣ Clone it and try it** (no API key needed):
 
-### Step 2 · Download LeakTrap 📦
-
-**Option A, no Git needed:** click the green **`<> Code`** button at the top of this page → **Download ZIP** → right-click the file → **Extract All**. You get a folder called **`leaktrap-main`**.
-
-**Option B, with Git:**
 ```bash
 git clone https://github.com/wardust007/leaktrap.git
 cd leaktrap
+python -m leaktrap run --target demo:simulated
 ```
 
-### Step 3 · Open a terminal in that folder 💻
+> 🍎 **Mac / Linux:** type `python3` instead of `python`, in this command and every command below.
 
-Open the folder that contains **`README.md`** and **`pyproject.toml`**: `leaktrap-main` if you downloaded the ZIP. Not the `leaktrap` folder *inside* it.
+Open **`results/report.html`** in your browser. That's a sample report from a built-in **fake** model. 🎉
 
-| 🪟 Windows | 🍎 Mac | 🐧 Linux |
+**2️⃣ Attack a real AI model for free:** get a key at [aistudio.google.com](https://aistudio.google.com) → **Get API key** (no card needed).
+
+| 🪟 Command Prompt | 🪟 PowerShell | 🍎 Mac / 🐧 Linux |
 |---|---|---|
-| Open the folder in File Explorer, click the **address bar**, type `cmd`, press **Enter** | Right-click the folder → **Services → New Terminal at Folder** | Right-click inside the folder → **Open in Terminal** |
-
-### Step 4 · Install it (one time) ⚙️
-
-This creates a private Python space just for LeakTrap (a *virtual environment*), so it works on every computer without permission errors.
-
-<table>
-<tr><th>🪟 Windows (Command Prompt)</th><th>🍎 Mac / 🐧 Linux</th></tr>
-<tr><td>
-
-```bat
-python -m venv .venv
-.venv\Scripts\activate
-python -m pip install -e .
-```
-
-</td><td>
+| `set GEMINI_API_KEY=your-key` | `$env:GEMINI_API_KEY="your-key"` | `export GEMINI_API_KEY=your-key` |
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
+python -m leaktrap run --target gemini:gemini-3.8-flash --free
 ```
 
-</td></tr>
-</table>
+⏱️ About 2 minutes later, open **`results/report.html`**: a real security assessment of a real AI model.
 
-✅ You'll now see **`(.venv)`** at the start of the line. That means it's ready.
-
-> 🔁 **Every time you open a new terminal later**, go to the same folder and run just the middle line again (`.venv\Scripts\activate` on Windows, `source .venv/bin/activate` on Mac/Linux) before using LeakTrap.
-
-### Step 5 · Try it with no key at all 🎮
+**3️⃣ Watch an attack live:**
 
 ```bash
-leaktrap run --target demo:simulated
-```
-This uses a built-in **fake** model so you can see the report right away. Open the new **`results`** folder and double-click **`report.html`**. 🎉
-
-### Step 6 · Attack a real AI model 🎯
-
-Grab a **free** Gemini key at [aistudio.google.com](https://aistudio.google.com) → **Get API key** (no card needed). Then, in the same terminal:
-
-<table>
-<tr><th>🪟 Command Prompt</th><th>🪟 PowerShell</th><th>🍎 Mac / 🐧 Linux</th></tr>
-<tr><td>
-
-```bat
-set GEMINI_API_KEY=paste-your-key
+python -m leaktrap replay tool-abuse.delimiter-escape --target gemini:gemini-3.8-flash --times 5
 ```
 
-</td><td>
+That's it. ✅
 
-```powershell
-$env:GEMINI_API_KEY="paste-your-key"
-```
+<details>
+<summary>📦 <b>No Git?</b> Download the ZIP instead</summary>
 
-</td><td>
+Click the green **`<> Code`** button → **Download ZIP** → **Extract All**. Open a terminal in the extracted **`leaktrap-main`** folder (the one with `README.md` in it), then run the `python -m leaktrap ...` commands above.
 
-```bash
-export GEMINI_API_KEY=paste-your-key
-```
+- 🪟 Windows: open the folder, click the address bar, type `cmd`, press **Enter**
+- 🍎 Mac: right-click the folder → **Services → New Terminal at Folder**
+</details>
 
-</td></tr>
-</table>
+<details>
+<summary>⌨️ <b>Optional:</b> install a short <code>leaktrap</code> command</summary>
 
-```bash
-leaktrap run --target gemini:gemini-3.8-flash --free
-```
+If you'd rather type `leaktrap` than `python -m leaktrap`, install it into a virtual environment from the repo folder:
 
-<sub>Command Prompt: no quotes and no spaces around `=`. The key only lasts while that terminal window is open.</sub>
+| 🪟 Windows (Command Prompt) | 🍎 Mac / 🐧 Linux |
+|---|---|
+| `python -m venv .venv` | `python3 -m venv .venv` |
+| `.venv\Scripts\activate` | `source .venv/bin/activate` |
+| `python -m pip install -e .` | `python -m pip install -e .` |
 
-⏱️ About 2 minutes later, open **`results/report.html`**. That's a real security assessment of a real AI model.
+Run the middle line again whenever you open a new terminal.
+</details>
 
 ---
 
@@ -145,10 +109,10 @@ leaktrap run --target gemini:gemini-3.8-flash --free
 
 | | Provider | Get a key | Command |
 |---|---|---|---|
-| 🏠 | **Ollama**: runs on *your* computer, unlimited & private | No key, just install [ollama.com](https://ollama.com) then `ollama pull qwen3:8b` | `leaktrap run --target ollama:qwen3:8b` |
-| 🔷 | **Google Gemini** | Free at [aistudio.google.com](https://aistudio.google.com) | `leaktrap run --target gemini:gemini-3.8-flash --free` |
-| ⚡ | **Groq** (super fast open models) | Free at [console.groq.com](https://console.groq.com) | `leaktrap run --target groq:openai/gpt-oss-120b --free` |
-| 🌐 | **OpenRouter** `:free` models | Free at [openrouter.ai](https://openrouter.ai) | `leaktrap run --target openrouter:<model>:free --free` |
+| 🏠 | **Ollama**: runs on *your* computer, unlimited & private | No key, just install [ollama.com](https://ollama.com) then `ollama pull qwen3:8b` | `python -m leaktrap run --target ollama:qwen3:8b` |
+| 🔷 | **Google Gemini** | Free at [aistudio.google.com](https://aistudio.google.com) | `python -m leaktrap run --target gemini:gemini-3.8-flash --free` |
+| ⚡ | **Groq** (super fast open models) | Free at [console.groq.com](https://console.groq.com) | `python -m leaktrap run --target groq:openai/gpt-oss-120b --free` |
+| 🌐 | **OpenRouter** `:free` models | Free at [openrouter.ai](https://openrouter.ai) | `python -m leaktrap run --target openrouter:<model>:free --free` |
 
 🧯 **`--free`** keeps you inside free limits: 24 attacks, 1 try each, max 15 requests/minute.
 OpenRouter's free models allow only ~50 requests a day, so test one model per day there.
@@ -172,7 +136,7 @@ A default run is 60 attacks × 2 tries = 120 requests per model, usually a few c
 
 Put several models in one report:
 ```bash
-leaktrap run --target gemini:gemini-3.8-flash --target groq:openai/gpt-oss-120b --target ollama:qwen3:8b --free
+python -m leaktrap run --target gemini:gemini-3.8-flash --target groq:openai/gpt-oss-120b --target ollama:qwen3:8b --free
 ```
 
 ---
@@ -189,7 +153,7 @@ It catches the secret even when it's disguised: 🔤 plain · ␣ spaced · 🔄
 
 ## 🧨 The attack arsenal
 
-Every attack = **🎯 a goal** × **🎭 a technique**. Run `leaktrap techniques` to see them all.
+Every attack = **🎯 a goal** × **🎭 a technique**. Run `python -m leaktrap techniques` to see them all.
 
 <table>
 <tr><th>🎯 Goals (what the attacker wants)</th><th>🎭 Techniques (how they disguise it)</th></tr>
@@ -242,7 +206,7 @@ Also saved: `report.md` (for GitHub) and `results.json` (every single trial, for
 Found a weak spot in the report? **Replay** that exact attack and watch the model's real answers, one attempt at a time:
 
 ```bash
-leaktrap replay tool-abuse.delimiter-escape --target gemini:gemini-3.8-flash --times 5 --show-system
+python -m leaktrap replay tool-abuse.delimiter-escape --target gemini:gemini-3.8-flash --times 5 --show-system
 ```
 
 ```text
@@ -267,7 +231,7 @@ Result: broke the model 2 of 5 times (40%; 95% CI 12–77%)
 ```
 <sub>Illustration of the output format. Your numbers will depend on the model.</sub>
 
-- 🆔 Prompt IDs are shown in the report, or list them all with `leaktrap list`.
+- 🆔 Prompt IDs are shown in the report, or list them all with `python -m leaktrap list`.
 - 🔒 `--show-system` also prints the chatbot's hidden instructions, so you can paste them into the model's own playground (e.g. Google AI Studio's *System instructions* box) and try the attack **by hand**.
 - 🎥 Perfect for demos, interviews and screen recordings.
 
@@ -283,7 +247,7 @@ Can output filters alone protect a chatbot? We ran the built-in 16-case suite ag
 
 Reproduce it yourself:
 ```bash
-leaktrap run --target demo:compromised --prompts builtin --defenses redact,link-strip,tool-guard --repeats 3
+python -m leaktrap run --target demo:compromised --prompts builtin --defenses redact,link-strip,tool-guard --repeats 3
 ```
 
 ---
@@ -299,18 +263,18 @@ leaktrap run --target demo:compromised --prompts builtin --defenses redact,link-
 
 | Command | What it does |
 |---|---|
-| `leaktrap run --target <provider:model>` | 🎯 attack a model and write the report |
-| `leaktrap run ... --free` | 💸 stay inside free-tier limits |
-| `leaktrap run ... --count 120 --repeats 3` | 🔁 more attacks, more tries = more reliable numbers |
-| `leaktrap run ... --goals tool-abuse,link-exfil` | 🎯 only certain attack goals |
-| `leaktrap run ... --defenses all` | 🛡️ turn on LeakTrap's defenses and measure how much they help |
-| `leaktrap run ... --rewrite-with <provider:model>` | 🤖 let an AI write extra attack variations |
-| `leaktrap run ... --dry-run` | 👀 show how many requests it would send, then stop |
-| `leaktrap generate --out prompts.jsonl` | 📝 save the attacks to read or edit |
-| `leaktrap run --prompts prompts.jsonl ...` | ♻️ run your own edited attacks |
-| `leaktrap list` | 🆔 list every attack ID |
-| `leaktrap replay <ID> --target <provider:model>` | 🎬 watch one attack hit a model live |
-| `leaktrap techniques` | 📚 list every goal and technique |
+| `python -m leaktrap run --target <provider:model>` | 🎯 attack a model and write the report |
+| `python -m leaktrap run ... --free` | 💸 stay inside free-tier limits |
+| `python -m leaktrap run ... --count 120 --repeats 3` | 🔁 more attacks, more tries = more reliable numbers |
+| `python -m leaktrap run ... --goals tool-abuse,link-exfil` | 🎯 only certain attack goals |
+| `python -m leaktrap run ... --defenses all` | 🛡️ turn on LeakTrap's defenses and measure how much they help |
+| `python -m leaktrap run ... --rewrite-with <provider:model>` | 🤖 let an AI write extra attack variations |
+| `python -m leaktrap run ... --dry-run` | 👀 show how many requests it would send, then stop |
+| `python -m leaktrap generate --out prompts.jsonl` | 📝 save the attacks to read or edit |
+| `python -m leaktrap run --prompts prompts.jsonl ...` | ♻️ run your own edited attacks |
+| `python -m leaktrap list` | 🆔 list every attack ID |
+| `python -m leaktrap replay <ID> --target <provider:model>` | 🎬 watch one attack hit a model live |
+| `python -m leaktrap techniques` | 📚 list every goal and technique |
 
 ---
 
@@ -318,37 +282,22 @@ leaktrap run --target demo:compromised --prompts builtin --defenses redact,link-
 
 <details><summary>❌ <code>'python' is not recognized</code>, or it opens the Microsoft Store (Windows)</summary>
 
-Python isn't on your PATH. Either reinstall Python with **"Add python.exe to PATH"** ticked, or use the Python launcher instead: replace `python` with `py` in Step 4 (`py -m venv .venv`).
+Use `py` instead of `python` (for example `py -m leaktrap run --target demo:simulated`), or reinstall Python with **"Add python.exe to PATH"** ticked.
 </details>
 
-<details><summary>❌ <code>'leaktrap' is not recognized</code> / <code>command not found</code></summary>
+<details><summary>❌ <code>python: command not found</code> (Mac / Linux)</summary>
 
-Your virtual environment isn't active: you won't see `(.venv)` at the start of the line. Go to the LeakTrap folder and run the activate line from Step 4 again. As a fallback, this always works: `python -m leaktrap run --target demo:simulated`
+Use `python3` instead of `python`.
 </details>
 
-<details><summary>❌ <code>does not appear to be a Python project</code> / <code>neither setup.py nor pyproject.toml found</code></summary>
+<details><summary>❌ <code>No module named leaktrap</code></summary>
 
-You're in the wrong folder, usually the inner `leaktrap` folder. Go up one level to the folder that contains `README.md` and `pyproject.toml` (`leaktrap-main` from the ZIP).
+Your terminal isn't in the repo folder. Run `cd leaktrap` (or open the terminal in `leaktrap-main` if you used the ZIP). You should see `README.md` when you list the folder (`dir` on Windows, `ls` on Mac/Linux).
 </details>
 
-<details><summary>❌ <code>externally-managed-environment</code> (Mac / Linux)</summary>
+<details><summary>🔑 The API key "isn't set"</summary>
 
-You ran `pip install` without the virtual environment. Run the three lines in Step 4 in order. The `source .venv/bin/activate` line is what fixes this.
-</details>
-
-<details><summary>❌ <code>No module named venv</code> / <code>ensurepip is not available</code> (Ubuntu / Debian)</summary>
-
-Install the venv package first: `sudo apt install python3-venv`, then repeat Step 4.
-</details>
-
-<details><summary>❌ PowerShell: <code>running scripts is disabled on this system</code></summary>
-
-Use **Command Prompt** instead (type `cmd` in the folder's address bar), or run this once in PowerShell: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
-</details>
-
-<details><summary>🔑 "set GEMINI_API_KEY" error, or the key "isn't set"</summary>
-
-The key only lasts for that terminal window. Set it again in every new window, in the **same** window you run LeakTrap from. Command Prompt uses `set NAME=value`, PowerShell uses `$env:NAME="value"`, Mac/Linux use `export NAME=value`.
+The key only lasts for that terminal window, so set it again in each new window, in the **same** window you run LeakTrap from. Command Prompt: `set NAME=value` (no quotes, no spaces). PowerShell: `$env:NAME="value"`. Mac/Linux: `export NAME=value`.
 </details>
 
 <details><summary>⛔ <code>HTTP 404 ... model does not exist</code></summary>
@@ -358,7 +307,7 @@ The model name is wrong or retired. Copy the exact ID from your provider's model
 
 <details><summary>🐢 <code>HTTP 429</code> / rate limited</summary>
 
-You hit the free tier's limit. LeakTrap already retries automatically; add `--free` or lower the speed with `--rpm 10`. OpenRouter free models allow about 50 requests a day, so wait until tomorrow.
+You hit the free tier's limit. LeakTrap already retries automatically; add `--free` or lower the speed with `--rpm 10`. OpenRouter free models allow about 50 requests a day.
 </details>
 
 <details><summary>🏠 Ollama: connection refused</summary>
@@ -385,7 +334,7 @@ tests/                53 tests, including real HTTP calls to fake GPT & Claude s
 docs/                 research paper + live sample report
 ```
 
-Run the tests (with the virtual environment active): `python -m pip install pytest` then `python -m pytest` ✅
+Run the tests: `python -m pip install pytest` then `python -m pytest` ✅
 
 ---
 
