@@ -1,5 +1,6 @@
 """LeakTrap command line.
 
+  python -m leaktrap ui                                    open the point-and-click dashboard (easiest)
   leaktrap generate --count 60 --out prompts.jsonl        write attack prompts to review
   leaktrap run --target openai:gpt-5.6-sol                 generate, attack, report
   leaktrap run --target openai:gpt-5.6-sol --target anthropic:claude-sonnet-5-5 --target ollama:qwen3:8b
@@ -58,6 +59,10 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("techniques", help="list attacker goals and techniques")
 
+    ui = sub.add_parser("ui", help="open the point-and-click dashboard in your browser (easiest way)")
+    ui.add_argument("--port", type=int, default=8765, help="port for the dashboard (default 8765)")
+    ui.add_argument("--no-browser", action="store_true", help="start the server without opening a browser")
+
     r = sub.add_parser("run", help="attack one or more models and write a report")
     r.add_argument("--target", action="append", required=True,
                    help="provider:model, repeatable. e.g. openai:gpt-5.6-sol, anthropic:claude-sonnet-5-5, "
@@ -98,6 +103,10 @@ def main(argv: list[str] | None = None) -> int:
 
     a = p.parse_args(argv)
     log = (lambda m: None) if getattr(a, "quiet", False) else (lambda m: print(m, file=sys.stderr))
+
+    if a.cmd == "ui":
+        from .app import serve
+        return serve(a.port, open_browser=not a.no_browser)
 
     if a.cmd == "list":
         cases = _all_prompts(a.prompts)

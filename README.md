@@ -42,65 +42,60 @@ AI chatbots are given **hidden instructions** and often **secrets**: API keys, i
 
 ---
 
-## 🚀 Quick start
+## 🚀 Quick start (no typing, no coding)
 
-**You need:** [Python 3.10+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads). Nothing else gets installed: LeakTrap runs on plain Python.
+**You need:** [Python 3.10+](https://www.python.org/downloads/). That's it. LeakTrap uses only plain Python, so nothing else gets installed.
 
-> 🪟 On Windows, tick **"Add python.exe to PATH"** when installing Python.
+> 🪟 **Windows:** in the Python installer, tick **"Add python.exe to PATH"** first.
 
-**1️⃣ Clone it and try it** (no API key needed):
+**1️⃣ Download LeakTrap**
 
-```bash
-git clone https://github.com/wardust007/leaktrap.git
-cd leaktrap
-python -m leaktrap run --target demo:simulated
-```
+Click the green **`<> Code`** button at the top of this page → **Download ZIP** → right-click the file → **Extract All**.
 
-> 🍎 **Mac / Linux:** type `python3` instead of `python`, in this command and every command below.
+**2️⃣ Double-click the launcher** 🖱️
 
-Open **`results/report.html`** in your browser. That's a sample report from a built-in **fake** model. 🎉
+| 🪟 Windows | 🍎 Mac |
+|---|---|
+| **`Start LeakTrap.bat`** | **`Start LeakTrap.command`** |
 
-**2️⃣ Attack a real AI model for free:** get a key at [aistudio.google.com](https://aistudio.google.com) → **Get API key** (no card needed).
+Your browser opens the **🛡️ LeakTrap dashboard** by itself. Leave the black window open while you use it. Close it to stop.
 
-| 🪟 Command Prompt | 🪟 PowerShell | 🍎 Mac / 🐧 Linux |
-|---|---|---|
-| `set GEMINI_API_KEY=your-key` | `$env:GEMINI_API_KEY="your-key"` | `export GEMINI_API_KEY=your-key` |
+**3️⃣ Pick a model and press 🚀 LAUNCH ATTACK**
 
-```bash
-python -m leaktrap run --target gemini:gemini-3.8-flash --free
-```
-
-⏱️ About 2 minutes later, open **`results/report.html`**: a real security assessment of a real AI model.
-
-**3️⃣ Watch an attack live:**
-
-```bash
-python -m leaktrap replay tool-abuse.delimiter-escape --target gemini:gemini-3.8-flash --times 5
-```
+- 🧪 **Practice mode** works immediately, with no key. It uses a built-in stand-in chatbot, so you can see a full report right away.
+- 🟢 **Google Gemini** and 🟣 **Groq** are free. Paste a free key (the box tells you where to get one) and test a real AI.
+- 📊 Results appear as a **scoreboard**: attack success rate, a margin-of-error bar, and a button to open the full report.
 
 That's it. ✅
 
 <details>
-<summary>📦 <b>No Git?</b> Download the ZIP instead</summary>
+<summary>🎬 <b>What you'll see</b></summary>
 
-Click the green **`<> Code`** button → **Download ZIP** → **Extract All**. Open a terminal in the extracted **`leaktrap-main`** folder (the one with `README.md` in it), then run the `python -m leaktrap ...` commands above.
+1. A dropdown to choose the AI and a box for its key (only used for that run, never saved to disk).
+2. A live log streaming the attack as it runs.
+3. A neon scoreboard with a percentage for each model, plus a full HTML report you can share.
 
-- 🪟 Windows: open the folder, click the address bar, type `cmd`, press **Enter**
-- 🍎 Mac: right-click the folder → **Services → New Terminal at Folder**
 </details>
 
 <details>
-<summary>⌨️ <b>Optional:</b> install a short <code>leaktrap</code> command</summary>
+<summary>⌨️ <b>For command-line fans</b></summary>
 
-If you'd rather type `leaktrap` than `python -m leaktrap`, install it into a virtual environment from the repo folder:
+The launcher runs this for you. You can also type it yourself from the LeakTrap folder:
 
-| 🪟 Windows (Command Prompt) | 🍎 Mac / 🐧 Linux |
-|---|---|
-| `python -m venv .venv` | `python3 -m venv .venv` |
-| `.venv\Scripts\activate` | `source .venv/bin/activate` |
-| `python -m pip install -e .` | `python -m pip install -e .` |
+```bash
+python -m leaktrap ui                 # Mac / Linux: python3 -m leaktrap ui
+```
 
-Run the middle line again whenever you open a new terminal.
+Or run a test with no window at all:
+
+```bash
+python -m leaktrap run --target demo:simulated
+python -m leaktrap run --target gemini:gemini-3.8-flash --free     # needs GEMINI_API_KEY set
+python -m leaktrap replay tool-abuse.delimiter-escape --target gemini:gemini-3.8-flash --times 5
+```
+
+Git users can run `git clone https://github.com/wardust007/leaktrap.git` instead of downloading the ZIP.
+
 </details>
 
 ---

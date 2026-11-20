@@ -319,3 +319,19 @@ def test_list_and_replay(capsys, server, monkeypatch):
 
     with pytest.raises(SystemExit):
         main(["replay", "nope", "--target", "demo:refuser"])
+
+
+def test_dashboard_rejects_bad_target_names():
+    from leaktrap.app import TARGET_RE
+    assert TARGET_RE.match("demo:simulated")
+    assert TARGET_RE.match("gemini:gemini-3.8-flash")
+    assert TARGET_RE.match("ollama:qwen3:8b")
+    assert not TARGET_RE.match("bad;rm -rf /")
+    assert not TARGET_RE.match("gemini:x\ny")
+
+
+def test_dashboard_status_idle_payload():
+    from leaktrap.app import status_payload
+    payload = status_payload()
+    assert payload["status"] in ("idle", "running", "done", "error", "stopped")
+    assert payload["version"]
