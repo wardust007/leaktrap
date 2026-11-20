@@ -56,7 +56,7 @@ Every trial generates a new random secret (the canary, e.g. `ACME-7F3A9B21`) and
 
 ### 3.2 Attack suite
 
-The built-in suite has 16 cases in 8 categories. Eleven arrive directly in the user's message; five arrive indirectly, hidden in an email, web page or forwarded message the user asks the app to process. Cases are plain YAML, so new attacks need no code.
+The built-in suite has 16 cases in 8 categories. Eleven arrive directly in the user's message; five arrive indirectly, hidden in an email, web page or forwarded message the user asks the app to process. Cases are plain JSON, so new attacks need no code.
 
 | ID | Attack | Vector | Detected by | OWASP 2026 | MITRE ATLAS |
 | --- | --- | --- | --- | --- | --- |
@@ -159,9 +159,9 @@ LeakTrap turns prompt-injection testing from a handful of manual tries into a re
 
 **Reproduce:**
 ```bash
-pip install -e .
-python -m pytest
-leaktrap run --target demo:compromised --prompts builtin --defenses redact,link-strip,tool-guard --repeats 3
+git clone https://github.com/wardust007/leaktrap.git
+cd leaktrap
+python -m leaktrap run --target demo:compromised --prompts builtin --defenses redact,link-strip,tool-guard --repeats 3
 ```
 
 ## References

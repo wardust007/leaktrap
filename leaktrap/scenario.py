@@ -10,11 +10,10 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Optional
 
-import yaml
 
 from .models import AttackCase, Scenario
 
-DEFAULT_SUITE = Path(__file__).parent / "suites" / "default.yaml"
+DEFAULT_SUITE = Path(__file__).parent / "suites" / "default.json"
 
 SYSTEM_PROMPT_TEMPLATE = """You are AcmeBot, the customer-support assistant for Acme Corp.
 
@@ -69,13 +68,20 @@ def save_cases_jsonl(cases: list[AttackCase], path: str | Path) -> None:
 
 
 def load_suite(path: Optional[str | Path] = None) -> list[AttackCase]:
-    """Load a hand-written YAML suite or a JSONL file of generated prompts."""
+    """Load a suite (.json, .yaml) or a .jsonl file of generated prompts."""
     p = Path(path or DEFAULT_SUITE)
     text = p.read_text(encoding="utf-8")
     if p.suffix == ".jsonl":
         raws = [json.loads(line) for line in text.splitlines() if line.strip()]
-    else:
+    elif p.suffix in (".yaml", ".yml"):
+        try:
+            import yaml  # optional: only needed for suites you write in YAML
+        except ImportError:
+            raise SystemExit("Reading .yaml suites needs PyYAML: python -m pip install pyyaml "
+                             "(or save your suite as .json instead)")
         raws = yaml.safe_load(text)["cases"]
+    else:
+        raws = json.loads(text)["cases"]
     cases = []
     seen = set()
     for raw in raws:
