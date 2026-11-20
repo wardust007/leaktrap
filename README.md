@@ -68,6 +68,22 @@ Your browser opens the **🛡️ LeakTrap dashboard** by itself. Leave the black
 
 That's it. ✅
 
+### 🧑‍💻 Prefer Git or the terminal?
+
+Both options work exactly the same way:
+
+```bash
+git clone https://github.com/wardust007/leaktrap.git
+cd leaktrap
+python -m leaktrap ui                 # Mac / Linux: python3 -m leaktrap ui
+```
+
+Or skip the dashboard and run a test straight from the terminal:
+
+```bash
+python -m leaktrap run --target demo:simulated
+```
+
 <details>
 <summary>🎬 <b>What you'll see</b></summary>
 
@@ -94,7 +110,6 @@ python -m leaktrap run --target gemini:gemini-3.8-flash --free     # needs GEMIN
 python -m leaktrap replay tool-abuse.delimiter-escape --target gemini:gemini-3.8-flash --times 5
 ```
 
-Git users can run `git clone https://github.com/wardust007/leaktrap.git` instead of downloading the ZIP.
 
 </details>
 
