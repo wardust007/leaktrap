@@ -1,5 +1,9 @@
 # 📜 Changelog
 
+## v0.3.0 · November 2026
+- 🎬 **`leaktrap replay`:** watch one attack hit a model live, with LEAKED / BLOCKED verdicts and a success rate
+- 🆔 **`leaktrap list`:** every attack ID, filterable by goal
+
 ## v0.2.0 · November 2026
 - 🧪 **Attack generator:** 126 prompts from 6 goals × 19 techniques × 3 languages (English, Arabic, Spanish)
 - 🎯 **Real models:** OpenAI, Anthropic, Google Gemini, Groq, OpenRouter, Ollama, any OpenAI-compatible API

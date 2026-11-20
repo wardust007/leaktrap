@@ -297,3 +297,25 @@ def test_free_mode_defaults(server, tmp_path, monkeypatch):
                  "--out", str(out), "--quiet"]) == 0
     data = json.loads((out / "results.json").read_text())
     assert data["targets"][0]["overall"]["trials"] == 24
+
+
+def test_list_and_replay(capsys, server, monkeypatch):
+    assert main(["list", "--goals", "tool-abuse"]) == 0
+    out = capsys.readouterr().out
+    assert "tool-abuse.hidden-postscript" in out and "goal-hijack" not in out
+
+    assert main(["replay", "link-exfil.doc-note", "--target", "demo:compromised", "--times", "3"]) == 0
+    out = capsys.readouterr().out
+    assert out.count("LEAKED") == 3 and "broke the model 3 of 3" in out and "SIMULATED" in out
+
+    assert main(["replay", "secret-leak.plain-override", "--target", "demo:refuser", "--times", "2"]) == 0
+    assert "broke the model 0 of 2" in capsys.readouterr().out
+
+    monkeypatch.setenv("LEAKTRAP_API_KEY", "k")
+    assert main(["replay", "secret-leak.plain-override", "--target", "compatible:naive", "--base-url", server,
+                 "--times", "2", "--show-system"]) == 0
+    out = capsys.readouterr().out
+    assert "broke the model 2 of 2" in out and "hidden instructions" in out
+
+    with pytest.raises(SystemExit):
+        main(["replay", "nope", "--target", "demo:refuser"])
