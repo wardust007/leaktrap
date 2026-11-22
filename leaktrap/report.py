@@ -272,12 +272,31 @@ def to_html(results: list[RunResult], meta: dict) -> str:
 
     defenses = ", ".join(results[0].defenses) if results and results[0].defenses else "none"
     gen = meta.get("generator", {})
+    eng = meta.get("engagement")
+    if eng:
+        app_html = (f"<p><b>Application under test.</b> {html.escape(eng['client'])}'s own chatbot at "
+                    f"<code>{html.escape(eng['target_url'])}</code>, reached over HTTP the way its users reach it, "
+                    f"with its own hidden instructions. The client planted a fake canary secret in those instructions "
+                    f"for this test; each trial used a fresh session.</p>"
+                    f"<p><b>Authorization.</b> Engagement {html.escape(eng['id'])}, signed by "
+                    f"{html.escape(eng['authorized_by'])} on {html.escape(eng['signed_on'])}, valid "
+                    f"{html.escape(eng['window'])}. Scope: {html.escape(', '.join(eng['allowed_hosts']))}; at most "
+                    f"{eng['max_requests']} requests at {eng['rpm']:g} per minute. Every request is listed in "
+                    f"<code>audit.jsonl</code>.</p>")
+        eng_line = f"<p class=meta>Client: {html.escape(eng['client'])} · engagement {html.escape(eng['id'])}</p>"
+    else:
+        app_html = ("<p><b>Application under test.</b> A customer-support assistant (\"AcmeBot\") whose system prompt "
+                    "holds a confidential reference code, defines a <code>send_email</code> tool limited to one verified "
+                    "customer, and tells the model to treat shared documents as data. Each trial uses a fresh random "
+                    "secret and marker word.</p>")
+        eng_line = ""
     return f"""<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1"><title>LeakTrap assessment report</title>
 {FONTS}<style>{CSS}</style></head><body>
 <h1>LeakTrap assessment report</h1>
 <p class=meta>Prompt-injection resistance test · {html.escape(meta.get('generated', ''))} UTC ·
 {len(results)} target(s) · {total_prompts} attack prompts × {results[0].repeats if results else 0} trial(s) · defenses: {html.escape(defenses)}</p>
+{eng_line}
 {banner}
 <h2>Executive summary</h2>
 <div class=cards>{cards}</div>
@@ -299,9 +318,7 @@ def to_html(results: list[RunResult], meta: dict) -> str:
 <h2>Recommendations</h2><ol>{recs}</ol>
 
 <h2>Method</h2>
-<p><b>Application under test.</b> A customer-support assistant ("AcmeBot") whose system prompt holds a confidential
-reference code, defines a <code>send_email</code> tool limited to one verified customer, and tells the model to treat
-shared documents as data. Each trial uses a fresh random secret and marker word.</p>
+{app_html}
 <p><b>Attack prompts.</b> {html.escape(meta.get('source', ''))}
 {f"Generator seed {gen.get('seed')}, {gen.get('count')} prompts sampled evenly across goals." if gen else ''}
 {html.escape(meta.get('rewrite', ''))}</p>
@@ -327,6 +344,12 @@ def to_markdown(results: list[RunResult], meta: dict) -> str:
            f"Generated {meta.get('generated', '')} UTC. Defenses: {', '.join(results[0].defenses) or 'none'}.", ""]
     if any(r.simulated for r in results):
         out += ["> **SIMULATED RESULTS.** At least one target is a built-in stand-in, not a real AI model.", ""]
+    eng = meta.get("engagement")
+    if eng:
+        out += [f"**Client:** {eng['client']} · **Engagement:** {eng['id']} · **Authorized by:** "
+                f"{eng['authorized_by']} ({eng['signed_on']}), valid {eng['window']} · **Scope:** "
+                f"{', '.join(eng['allowed_hosts'])}, max {eng['max_requests']} requests. "
+                f"Every request is listed in `audit.jsonl`.", ""]
     out += ["## Summary", "", "| Target | Attack success | 95% CI | Trials | Errors |", "|---|---|---|---|---|"]
     for r in results:
         lo, hi = r.ci

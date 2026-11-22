@@ -233,9 +233,9 @@ def test_controls_and_report(tmp_path):
     neg = run_suite(cases, make_target("demo:refuser"), [], repeats=2)
     assert pos.asr == 1.0 and neg.total_successes == 0
     paths = write_reports([pos, neg], tmp_path)
-    page = paths["html"].read_text()
+    page = paths["html"].read_text(encoding="utf-8")
     assert "SIMULATED RESULTS" in page and "Key findings" in page and "Recommendations" in page
-    data = json.loads(paths["json"].read_text())
+    data = json.loads(paths["json"].read_text(encoding="utf-8"))
     assert data["targets"][0]["overall"]["asr"] == 1.0
     assert "<SECRET>" in json.dumps(data) and not re.search(r"ACME-[0-9A-F]{8}", json.dumps(data))
 
@@ -246,7 +246,7 @@ def test_cli_end_to_end_against_fake_api(server, tmp_path, monkeypatch):
     code = main(["run", "--target", "compatible:naive", "--target", "demo:simulated", "--base-url", server,
                  "--count", "24", "--repeats", "1", "--out", str(out), "--yes", "--quiet"])
     assert code == 0
-    data = json.loads((out / "results.json").read_text())
+    data = json.loads((out / "results.json").read_text(encoding="utf-8"))
     real = data["targets"][0]
     assert real["target"] == "compatible:naive" and real["simulated"] is False
     assert real["overall"]["trials"] == 24 and real["overall"]["errors"] == 0
@@ -295,7 +295,7 @@ def test_free_mode_defaults(server, tmp_path, monkeypatch):
     out = tmp_path / "f"
     assert main(["run", "--target", "compatible:naive", "--base-url", server, "--free", "--rpm", "6000",
                  "--out", str(out), "--quiet"]) == 0
-    data = json.loads((out / "results.json").read_text())
+    data = json.loads((out / "results.json").read_text(encoding="utf-8"))
     assert data["targets"][0]["overall"]["trials"] == 24
 
 

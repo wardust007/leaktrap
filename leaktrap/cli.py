@@ -101,8 +101,42 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--base-url")
     rp.add_argument("--rpm", type=float, default=None, help="max attempts per minute")
 
+    cl = sub.add_parser("client", help="test a client's real chatbot under a signed engagement file")
+    csub = cl.add_subparsers(dest="client_cmd", required=True)
+    ci = csub.add_parser("init", help="create an engagement file and the client's canary instructions")
+    ci.add_argument("--client", required=True, help="client name, e.g. 'Acme Inc'")
+    ci.add_argument("--url", required=True, help="the chatbot's API address, e.g. https://api.acme.com/chat")
+    ci.add_argument("--id", help="engagement ID (default: client name + date)")
+    ci.add_argument("--out", default="engagement.json", help="where to write the engagement file")
+    ci.add_argument("--force", action="store_true", help="overwrite an existing engagement file")
+    cc = csub.add_parser("check", help="validate the engagement and send one harmless test message")
+    cc.add_argument("engagement", help="engagement .json file")
+    cc.add_argument("--no-probe", action="store_true", help="only validate the file; send nothing")
+    cr = csub.add_parser("run", help="attack the client's chatbot and write the report")
+    cr.add_argument("engagement", help="engagement .json file")
+    cr.add_argument("--prompts", default="generated",
+                    help="'generated' (default), 'builtin', or a .json/.jsonl/.yaml file")
+    _add_prompt_args(cr)
+    cr.add_argument("--repeats", type=int, default=1, help="trials per prompt (default 1)")
+    cr.add_argument("--rewrite-with", help="provider:model of an AI that writes extra variations of each prompt")
+    cr.add_argument("--rewrites", type=int, default=1)
+    cr.add_argument("--out", help="report folder (default: results/<engagement id>)")
+    cr.add_argument("--yes", action="store_true", help="don't ask for confirmation before attacking")
+    cr.add_argument("--dry-run", action="store_true", help="validate and show the plan; send nothing")
+    cr.add_argument("--quiet", action="store_true")
+    crp = csub.add_parser("replay", help="replay one attack against the client's chatbot, live")
+    crp.add_argument("engagement", help="engagement .json file")
+    crp.add_argument("prompt_id", help="an ID from the report or from 'leaktrap list'")
+    crp.add_argument("--times", type=int, default=3, help="how many attempts (default 3)")
+    crp.add_argument("--prompts", default="generated")
+    crp.add_argument("--out", help="folder for the audit log (default: results/<engagement id>)")
+
     a = p.parse_args(argv)
     log = (lambda m: None) if getattr(a, "quiet", False) else (lambda m: print(m, file=sys.stderr))
+
+    if a.cmd == "client":
+        from .client_cli import client_main
+        return client_main(a, p, log, _gen, _all_prompts)
 
     if a.cmd == "ui":
         from .app import serve

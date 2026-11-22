@@ -1,5 +1,14 @@
 # 📜 Changelog
 
+## v0.5.0 · November 2026
+- 🏢 **Client engagements (`leaktrap client`):** attack a client's real chatbot over HTTP, under a signed engagement file
+- 🪤 **Canary secrets:** `client init` creates a fake secret and setup instructions for the client to plant in their bot
+- 🚧 **Safety rails:** authorization window, allowed hosts only, blocked out-of-scope redirects, hard request budget, one request at a time, stop on 401/403
+- 🧾 **Audit log:** every request to a client is recorded in `audit.jsonl` (no headers or tokens)
+- 🔌 Works with JSON, plain-text and streaming (server-sent events) chatbot APIs; `{{session}}` gives every request a fresh session
+- 📊 Reports name the client, the signer and the scope
+- ✅ Tests now pass on Windows without UTF-8 mode
+
 ## v0.4.0 · November 2026
 - 🖱️ **Double-click launchers:** `Start LeakTrap.bat` (Windows) and `Start LeakTrap.command` (Mac) open the dashboard. No typing needed
 - 🛡️ **Dashboard (`python -m leaktrap ui`):** pick a model from a menu, paste a key, press Launch, and watch a live log and a neon scoreboard

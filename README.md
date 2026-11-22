@@ -4,7 +4,7 @@
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-00f0ff?style=for-the-badge&logo=python&logoColor=white&labelColor=0b0420">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-53%20passing-39ff14?style=for-the-badge&labelColor=0b0420">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-77%20passing-39ff14?style=for-the-badge&labelColor=0b0420">
   <img alt="OWASP" src="https://img.shields.io/badge/OWASP%20LLM-2026-ff2bd6?style=for-the-badge&labelColor=0b0420">
   <img alt="MITRE ATLAS" src="https://img.shields.io/badge/MITRE-ATLAS-9d4dff?style=for-the-badge&labelColor=0b0420">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-ffb400?style=for-the-badge&labelColor=0b0420">
@@ -269,6 +269,25 @@ python -m leaktrap run --target demo:compromised --prompts builtin --defenses re
 
 ---
 
+## 🏢 Test a client's chatbot (authorized engagements)
+
+Point LeakTrap at a client's **real chatbot**, the way its users reach it, under a signed scope:
+
+```bash
+python -m leaktrap client init --client "Acme Inc" --url https://api.acme.com/chat
+python -m leaktrap client check engagement.json
+python -m leaktrap client run engagement.json
+```
+
+- 📝 One **engagement file** holds who signed, the testing window, allowed hosts, a request budget and the API format.
+- 🪤 The client plants a **fake canary secret** in their bot's hidden instructions. LeakTrap proves leaks without touching real data.
+- 🚧 **Safety rails:** no run outside the signed window, only approved hosts (redirects elsewhere are blocked), a hard request cap, one request at a time, and an **audit log** of every request.
+- 📊 The report names the client, the signer and the scope.
+
+📘 Full guide: **[docs/CLIENT-ENGAGEMENTS.md](docs/CLIENT-ENGAGEMENTS.md)**
+
+---
+
 ## 🧰 All commands
 
 | Command | What it does |
@@ -285,6 +304,10 @@ python -m leaktrap run --target demo:compromised --prompts builtin --defenses re
 | `python -m leaktrap list` | 🆔 list every attack ID |
 | `python -m leaktrap replay <ID> --target <provider:model>` | 🎬 watch one attack hit a model live |
 | `python -m leaktrap techniques` | 📚 list every goal and technique |
+| `python -m leaktrap client init --client <name> --url <api>` | 🏢 start a client engagement file + canary instructions |
+| `python -m leaktrap client check engagement.json` | ✅ validate the scope and send one harmless message |
+| `python -m leaktrap client run engagement.json` | 🎯 attack the client's chatbot inside its signed scope |
+| `python -m leaktrap client replay engagement.json <ID>` | 🎬 re-run one finding against the client's chatbot |
 
 ---
 
@@ -339,8 +362,10 @@ leaktrap/
 ├── 🏃 runner.py      trials, rate limits, statistics
 ├── 🎬 replay.py      live replay of a single attack
 ├── 📊 report.py      the neon HTML / Markdown / JSON report
+├── 🏢 engagement.py  client chatbots: scope checks, canary, request budget, audit log
+├── 🏢 client_cli.py  the leaktrap client commands
 └── 💻 cli.py         the leaktrap command
-tests/                53 tests, including real HTTP calls to fake GPT & Claude servers
+tests/                77 tests, including real HTTP calls to fake GPT, Claude and client chatbot servers
 docs/                 research paper + live sample report
 ```
 

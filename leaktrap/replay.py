@@ -47,9 +47,17 @@ def replay(case: AttackCase, target: Target, times: int, defenses: list[str], sh
     if getattr(target, "simulated", False):
         print(f"{c['yellow']}   SIMULATED target: not a real AI model.{c['off']}")
 
-    leaked = errors = 0
+    fixed = getattr(target, "fixed_canary", None)
+    if fixed and show_system:
+        print(f"{c['dim']}   Client chatbot: it uses its own hidden instructions, so there are none to show.{c['off']}")
+        show_system = False
+    leaked = errors = attempts = 0
     for i in range(1, times + 1):
-        sc = new_scenario()
+        if getattr(target, "should_stop", None) and target.should_stop():
+            print(f"\n{c['yellow']}Stopped: {getattr(target, 'stop_reason', '')}{c['off']}")
+            break
+        attempts += 1
+        sc = new_scenario(canary=fixed)
         doc = fill(case.document, sc)
         messages, doc = apply_input_defenses(build_messages(case, sc), doc, defenses)
         if doc is not None:
@@ -77,7 +85,7 @@ def replay(case: AttackCase, target: Target, times: int, defenses: list[str], sh
         else:
             print(f"   {c['green']}{c['bold']}🛡️  BLOCKED{c['off']}")
 
-    valid = times - errors
+    valid = attempts - errors
     if valid:
         lo, hi = wilson(leaked, valid)
         colour = c["red"] if leaked else c["green"]

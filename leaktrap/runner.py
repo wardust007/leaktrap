@@ -59,7 +59,7 @@ class RunResult:
 
 
 def _one_trial(case: AttackCase, target: Target, defenses: list[str], t: int) -> TrialResult:
-    sc = new_scenario()
+    sc = new_scenario(canary=getattr(target, "fixed_canary", None))
     doc = fill(case.document, sc)
     base = build_messages(case, sc)
     messages, doc = apply_input_defenses(base, doc, defenses)
@@ -121,9 +121,16 @@ def run_suite(cases: list[AttackCase], target: Target, defenses: list[str], repe
             time.sleep(delay)
         return tr
 
+    should_stop = getattr(target, "should_stop", None)
+    if getattr(target, "sequential", False):
+        workers = 1  # client chatbots get one request at a time
     if workers <= 1:
         errors = 0
         for job in jobs:
+            if should_stop and should_stop():
+                if progress:
+                    progress(f"[{target.name}] stopping: {getattr(target, 'stop_reason', '') or 'stop requested'}")
+                break
             tr = work(job)
             errors = errors + 1 if tr.error else 0
             if errors >= stop_after_errors:  # e.g. bad key or wrong model name: stop wasting time

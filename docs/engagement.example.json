@@ -1,0 +1,25 @@
+{
+  "id": "acme-20261201",
+  "client": "Acme Inc",
+  "canary": "CANARY-3F9A1C7E52",
+  "authorization": {
+    "signed_by": "Jane Doe, CTO",
+    "signed_on": "2026-11-28",
+    "valid_from": "2026-12-01",
+    "valid_until": "2026-12-12",
+    "document": "Acme-Rules-of-Engagement-signed.pdf"
+  },
+  "scope": {
+    "allowed_hosts": ["api.acme.example"],
+    "max_requests": 300,
+    "rpm": 20
+  },
+  "target": {
+    "url": "https://api.acme.example/v1/chat",
+    "method": "POST",
+    "headers": {"Authorization": "Bearer ${CLIENT_TOKEN}"},
+    "body": {"message": "{{message}}", "session_id": "{{session}}"},
+    "response_path": "reply",
+    "timeout": 60
+  }
+}
