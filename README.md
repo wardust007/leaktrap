@@ -390,3 +390,4 @@ Run the tests: `python -m pip install pytest` then `python -m pytest` ✅
 Also by me: 🎣 [PhishLens](https://github.com/wardust007/phishlens), a phishing email verifier.
 
 <p align="center"><sub>⭐ If LeakTrap helped you, star the repo. MIT licensed.</sub></p>
+
